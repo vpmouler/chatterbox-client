@@ -45,6 +45,7 @@ app.fetch = function(message) {
     // loop within fetch
     for ( var i = 0; i < data.results.length ; i++ ) {
       if ( data.results[i].text === encodeURI(data.results[i].text) ) {
+        // console.log('inner ROOM', data.results[i].roomname);
         app.renderMessage(data.results[i])
       }
     }
