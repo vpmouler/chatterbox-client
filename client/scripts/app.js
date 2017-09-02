@@ -24,7 +24,7 @@ app.init = function () {
   $('#main .username').on('click', app.handleUsernameClick);
   // $('#send .submit').on('submit', app.handleSubmit);
   $('#send').submit(app.handleSubmit);
-  $('.newRoom').on('click', app.renderRoom);
+  $('.newRoom').on('click',app.renderRoom);
   app.fetch();
 
 }
@@ -108,6 +108,8 @@ app.renderMessage = function(message) {
 }
 
 app.renderRoom = function(message) {
+  // var answer = prompt("Add a room!","Type here...");
+  console.log('click room');
   for ( var i = 0; i < message.results.length; i++ ) {
     // var $room = $('<div/>');
     // $room.text(roomName);
@@ -124,7 +126,9 @@ app.renderRoom = function(message) {
 
 // create .class in render message acording to object that was passed in as argument
 // also add that username text in that div/span
-app.handleUsernameClick = function(){};
+app.handleUsernameClick = function(){
+
+};
 
 
 app.handleSubmit = function() {
