@@ -31,15 +31,24 @@ app.init = function () {
 
 app.send = function(message) {
   // $.ajax('http://parse.sfm6.hackreactor.com/',data);
-  $.ajax({type:"POST",url:"http://parse.sfm6.hackreactor.com/",data:message}); // JSON.stringify()
+  $.ajax({type:"POST",url:"http://parse.sfm6.hackreactor.com/chatterbox/classes/messages/",contentType: 'application/json',data:message, success: function() {
+    console.log('SUCcCESS SEND!!');
+  }, error: function() {
+    console.log('FAILED SEND!!!!');
+  }}); // JSON.stringify()
 }
 
 app.fetch = function(message) {
-  $.ajax({type:"GET",url:"http://parse.sfm6.hackreactor.com/chatterbox/classes/messages",data:JSON.stringify(message),success: function(data) {
+  $.ajax({type:"GET",url:"http://parse.sfm6.hackreactor.com/chatterbox/classes/messages?order=-createdAt",data:message,success: function(data) {
     console.log('FETCH WORKS!');
-    console.log('message in FE#TCH:', message);
-    console.log('data in success', data);
-    app.renderMessage(message)
+    console.log('data', data);
+    // loop within fetch
+    for ( var i = 0; i < data.results.length ; i++ ) {
+      if ( data.results[i].text === encodeURI(data.results[i].text) ) {
+        app.renderMessage(data.results[i])
+      }
+    }
+    app.renderRoom(data)
     // should acrtuall render message here
   }, error: function(data) {
     console.log('DOES NOT WORK!');
@@ -73,26 +82,44 @@ app.clearMessages = function(element) {
 
 
 app.renderMessage = function(message) {
-   $.ajax({type:"GET",url:"http://parse.sfm6.hackreactor.com/chatterbox/classes/messages", data : message, success: function(data){
-      console.log('chatterbox: success');
-      console.log('messagge:!!!!:', message);
-      console.log('data in RENDER Message', data);
-      var $username = $(`<p class='username'>${message.username}</p>`)
-      $('#main').append($username);
-      $('#chats').append(`<span class='username'>${message.text}</span>`);
+  var $username = $(`<p class='username'>${message.username}</p>`);
+  $('#chats').append($username);
+  var $textMessage = $(`<span class='textMessage'>${message.text}</span>`);
+  $('.username').append($textMessage);
+
+
+  // message is an array of objects given to us from fetch, it has all attribute
+  // loop through array to get username and message text, then append it to HTML
+/*
+  for ( var i = 0; i < message.results.length ; i++ ) {
+    // var username = message.results[i]
+    var $username = $(`<p class='username'>${message.results[i].username}</p>`);
+    $('#chats').append($username);
+    // var textMessage = message.results[i].text
+    var $textMessage = $(`<span class='textMessage'>${message.results[i].text}</span>`);
+    $('.username').append($textMessage);
+  }*/
+
     
-   }, error: function (data) {
-    // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-    console.error('chatterbox: Failed to send message', data);
-  }});
+  //  }, error: function (data) {
+  //   // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+  //   console.error('chatterbox: Failed to send message', data);
+  // }};
 }
 
-app.renderRoom = function(roomName) {
-  // 
-  var $room = $('<div/>');
-  $room.text(roomName);
-  $(document.body).append('<div id="roomSelect"></div>');
-  $('#roomSelect').append($room);
+app.renderRoom = function(message) {
+  for ( var i = 0; i < message.results.length; i++ ) {
+    // var $room = $('<div/>');
+    // $room.text(roomName);
+    // $(document.body).append('<div id="roomSelect"></div>');
+    // $('#roomSelect').append($room);
+    if ( message.results[i].roomname ) {
+      console.log('Rooom name!!!', message.results[i].roomname);
+      // var room = message.results[i].roomname;
+      var $room = $(`<div id='roomSelect'>${message.results[i].roomname}</div>`);
+      $('#chats').append($room)
+    }
+  }
 }
 
 // create .class in render message acording to object that was passed in as argument
@@ -106,14 +133,14 @@ app.handleSubmit = function() {
 
   var roomName = $('#main .newRoom').val();
 
-  var obj = {username: anonHackers,
+  var obj = {username: 'anonHackers',
             text: textMessage,
             roomname: roomName};
 
   var $node = $('<div/>');
 
   $node.text(textMessage);
-  $('#chats').append($node);
+  $('#chats').prepend($node);
   app.send(obj);
 }
 
